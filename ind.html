@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Translation Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .translated {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 50px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Language Translation Tool</h2>
+  <textarea id="inputText" rows="4" placeholder="Enter text to translate..."></textarea>
+
+  <label for="sourceLang">Source Language:</label>
+  <select id="sourceLang">
+    <option value="en">English</option>
+    <option value="es">Spanish</option>
+    <option value="fr">French</option>
+    <option value="de">German</option>
+  </select>
+
+  <label for="targetLang">Target Language:</label>
+  <select id="targetLang">
+    <option value="es">Spanish</option>
+    <option value="en">English</option>
+    <option value="fr">French</option>
+    <option value="de">German</option>
+  </select>
+
+  <button onclick="translateText()">Translate</button>
+
+  <h3>Translated Text:</h3>
+  <div class="translated" id="translatedText"></div>
+
+  <button onclick="copyText()">Copy</button>
+  <button onclick="speakText()">Speak</button>
+
+  <script>
+    async function translateText() {
+      const text = document.getElementById("inputText").value;
+      const source = document.getElementById("sourceLang").value;
+      const target = document.getElementById("targetLang").value;
+
+      try {
+        const response = await fetch("https://libretranslate.com/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            q: text,
+            source: source,
+            target: target,
+            format: "text"
+          })
+        });
+        
+
+        if (!response.ok) {
+          throw new Error("Translation API failed");
+        }
+
+        const data = await response.json();
+        document.getElementById("translatedText").innerText = data.translatedText;
+      } catch (error) {
+        document.getElementById("translatedText").innerText = "Error: " + error.message;
+      }
+    }
+
+    function copyText() {
+      const text = document.getElementById("translatedText").innerText;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(() => alert("Failed to copy!"));
+    }
+
+    function speakText() {
+      const text = document.getElementById("translatedText").innerText;
+      const utterance = new SpeechSynthesisUtterance(text);
+      speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
